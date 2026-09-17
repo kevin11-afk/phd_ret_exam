@@ -1,0 +1,31 @@
+# SQLite database
+exam_platform.db
+*.db
+*.sqlite3
+
+# Python bytecode & environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+.venv/
+env/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# Spreadsheets and local documents
+*.xlsx
+*.xls
+*.csv
+*.docx
+*.doc
+
+# Scratch & temporary testing files
+scratch*
+scratch/

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examination — PhD Entrance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+  <!-- ============ GATE SCREEN ============ -->
+  <div class="gate-shell" id="gateScreen">
+    <div class="gate-card">
+      <div class="eyebrow" style="font-family: var(--font-mono); font-size:12px; color: var(--text-faint); margin-bottom:10px;">Before you begin</div>
+      <h1>Examination conditions</h1>
+      <ul>
+        <li>The exam runs in full-screen. Exiting full-screen, switching tabs, copying text, or right-clicking is recorded as an infraction.</li>
+        <li>Three infractions end your attempt automatically and cannot be reversed.</li>
+        <li>Your webcam stays on for the duration of the exam. Keep your face visible and stay alone in frame.</li>
+        <li>The timer is set by the server. Closing this tab does not pause it.</li>
+        <li>You have one attempt. There is no retake once submitted or disqualified.</li>
+      </ul>
+      <button class="btn btn-primary" id="beginExamBtn">Enter full-screen and begin</button>
+      <div class="form-error" id="gateError" style="margin-top:18px;"></div>
+    </div>
+  </div>
+
+  <!-- ============ EXAM SCREEN ============ -->
+  <div class="exam-shell" id="examScreen" style="display:none;">
+    <div class="exam-topbar">
+      <div class="title-block">
+        <h1><img src="/static/img/logo.png" alt="University Logo" class="university-logo" onerror="this.style.display='none'">PhD Entrance Examination</h1>
+        <div class="candidate-name" id="candidateName"></div>
+      </div>
+      <div class="topbar-status">
+        <div class="strike-dots">
+          <span class="label">Infractions</span>
+          <span class="strike-dot" data-strike="1"></span>
+          <span class="strike-dot" data-strike="2"></span>
+          <span class="strike-dot" data-strike="3"></span>
+        </div>
+        <div class="timer" id="timerDisplay">--:--</div>
+      </div>
+    </div>
+
+    <div class="exam-body">
+      <div class="question-column">
+        <div class="question-card">
+          <div class="part-banner" id="partBanner"></div>
+          <div class="question-meta" id="questionMeta">Question 1 of 5</div>
+          <div class="question-text" id="questionText">Loading question…</div>
+
+          <div id="mcqOptions"></div>
+          <div class="written-answer" id="writtenAnswerWrap" style="display:none;">
+            <textarea id="writtenAnswerInput" placeholder="Write your answer here…"></textarea>
+          </div>
+
+          <div class="question-actions">
+            <div class="left-group">
+              <button class="btn" id="prevBtn">Previous</button>
+              <button class="btn" id="nextBtn">Next</button>
+            </div>
+            <div class="right-group">
+              <button class="btn" id="reviewBtn">Mark for review</button>
+              <button class="btn btn-primary" id="submitExamBtn">Submit exam</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <h2>Question navigator</h2>
+        <div class="nav-grid" id="navGrid"></div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-swatch" style="background: var(--panel-raised); border:1px solid var(--border);"></span> Unvisited</div>
+          <div class="legend-item"><span class="legend-swatch" style="background: var(--success-soft); border:1px solid var(--success);"></span> Answered</div>
+          <div class="legend-item"><span class="legend-swatch" style="background: var(--error-soft); border:1px solid var(--error);"></span> Passed/Skipped</div>
+          <div class="legend-item"><span class="legend-swatch" style="background: var(--accent-soft); border:2px solid var(--accent);"></span> Current question</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ WEBCAM PIP ============ -->
+  <div class="webcam-pip" id="webcamPip" style="display:none;">
+    <video id="webcamVideo" autoplay muted playsinline></video>
+    <div class="pip-status" id="webcamStatus">Initializing camera…</div>
+  </div>
+
+  <!-- ============ STRIKE WARNING MODAL (un-dismissible) ============ -->
+  <div class="modal-overlay" id="strikeModal">
+    <div class="modal-box">
+      <div class="strike-count" id="strikeModalCount">1 / 3</div>
+      <h2 id="strikeModalTitle">Infraction recorded</h2>
+      <p id="strikeModalBody">WARNING: Malpractice activity detected. Event logged to Admin.</p>
+      <button class="btn btn-primary" id="strikeModalContinue">Return to exam</button>
+    </div>
+  </div>
+
+  <!-- ============ INTERMISSION & DOMAIN SELECTION SCREEN ============ -->
+  <div class="modal-overlay" id="intermissionScreen" style="display:none; background: var(--bg-body); opacity: 1;">
+    <div class="modal-box" style="max-width: 600px; text-align: center;">
+      <h2>Intermission (Phase 1 Complete)</h2>
+      <div id="intermissionTimer" style="font-size: 2em; margin: 20px 0; font-family: var(--font-mono); font-weight: bold;">15:00</div>
+      <button class="btn btn-sm" id="skipRestBtn" style="display: none; margin: 0 auto 20px auto;">Skip Rest Timer</button>
+      <p>Please take a mandatory rest. Do not leave the camera view.</p>
+      
+      <div id="domainSelectionWrap" style="margin-top: 30px; text-align: left;">
+        <h3>Select Domain for Phase 2</h3>
+        <p>Choose your specific department paper. <strong>This selection is final.</strong></p>
+        <select id="domainSelect" class="input" style="width: 100%; margin: 10px 0; padding: 10px;">
+          <option value="">-- Select Domain --</option>
+          <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+          <option value="Agricultural Sciences">Agricultural Sciences</option>
+          <option value="Commerce & Management Studies">Commerce & Management Studies</option>
+          <option value="Bio-Science">Bio-Science</option>
+          <option value="English">English</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Tamil">Tamil</option>
+        </select>
+        <button class="btn btn-primary" id="submitDomainBtn" style="width: 100%;">Confirm & Unlock Phase 2</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TERMINAL SCREEN (disqualified / completed / expired) ============ -->
+  <div class="terminal-shell" id="terminalScreen" style="display:none;">
+    <div class="terminal-card" id="terminalCard">
+      <h1 id="terminalTitle">Exam ended</h1>
+      <p id="terminalBody"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script src="/static/js/proctor.js"></script>
+  <script src="/static/js/exam.js"></script>
+</body>
+</html>
