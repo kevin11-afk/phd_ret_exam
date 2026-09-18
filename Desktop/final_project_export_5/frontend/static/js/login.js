@@ -39,6 +39,7 @@ form.addEventListener("submit", async (e) => {
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("role", data.role);
     localStorage.setItem("full_name", data.full_name);
+    localStorage.setItem("approval_status", data.approval_status);
 
     if (data.must_reset_password) {
       window.location.href = "/reset-password";

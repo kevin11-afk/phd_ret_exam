@@ -39,6 +39,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     role = Column(Enum(UserRole, native_enum=False), nullable=False, default=UserRole.candidate)
     approval_status = Column(String, nullable=False, default="registered")
+    registered_domain = Column(String, nullable=True)
     must_reset_password = Column(Boolean, nullable=False, default=True)
     is_active = Column(Boolean, nullable=False, default=True)
     # Monotonic counter, not a timestamp: every JWT embeds the value that

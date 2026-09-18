@@ -47,6 +47,8 @@ def _to_out(db: Session, user: models.User) -> schemas.ManagedUserOut:
         role=user.role.value,
         is_active=user.is_active,
         must_reset_password=user.must_reset_password,
+        approval_status=user.approval_status,
+        registered_domain=user.registered_domain,
         latest_session_status=session.status.value if session else None,
         latest_session_score=session.score if session else None,
     )

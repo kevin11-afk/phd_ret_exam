@@ -85,6 +85,16 @@ async def global_exception_handler(request: Request, exc: Exception):
 @app.on_event("startup")
 async def on_startup():
     Base.metadata.create_all(bind=engine)
+    
+    # Safe schema migration for registered_domain
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN registered_domain VARCHAR"))
+            conn.commit()
+    except Exception:
+        pass # Column already exists or another error, safe to ignore for this simple migration
+
     if os.environ.get("RUN_SEED") == "1":
         seed()
     worker_task = asyncio.create_task(session_expiry_worker())

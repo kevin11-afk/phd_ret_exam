@@ -17,6 +17,7 @@ class LoginResponse(BaseModel):
     role: str
     must_reset_password: bool
     full_name: str
+    approval_status: str
 
 
 class ResetPasswordRequest(BaseModel):
@@ -99,6 +100,8 @@ class ManagedUserOut(BaseModel):
     role: str
     is_active: bool
     must_reset_password: bool
+    approval_status: str
+    registered_domain: Optional[str] = None
     # Only meaningful for candidates: status of their most recent exam
     # attempt, if any, so the admin can see who needs re-activating.
     latest_session_status: Optional[str] = None
@@ -183,6 +186,19 @@ class BulkImportRowError(BaseModel):
 class BulkImportResult(BaseModel):
     created: int
     errors: List[BulkImportRowError]
+
+
+class BulkImportXlsxRowError(BaseModel):
+    row: int
+    name: Optional[str] = None
+    email: Optional[str] = None
+    message: str
+
+
+class BulkImportXlsxResult(BaseModel):
+    created: int
+    already_existed: int
+    errors: List[BulkImportXlsxRowError]
 
 
 class QuestionBankMeta(BaseModel):

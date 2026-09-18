@@ -91,6 +91,7 @@
         <h2>Exam attenders (candidates)</h2>
         <div style="display:flex; gap:8px;">
           <button class="btn btn-sm" id="showBulkUserImportBtn">Bulk import (CSV)</button>
+          <button class="btn btn-sm" id="showXlsxUserImportBtn" style="background-color: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db;">Import Registered Candidates (XLSX)</button>
           <button class="btn btn-primary btn-sm" id="addCandidateBtn">+ Add candidate</button>
         </div>
       </div>
@@ -107,6 +108,21 @@
           <button type="button" class="btn btn-primary btn-sm" id="submitBulkUserImportBtn">Import</button>
         </div>
       </div>
+      
+      <div class="inline-form" id="xlsxUserImportForm" style="display:none; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+        <div class="field">
+          <label>Application Details Excel File (.xlsx)</label>
+          <input type="file" id="xlsxUserFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        </div>
+        <p class="form-hint" style="margin-top:0;">
+          Upload the official Application Details Excel file. Candidate name, email and registered domain will be imported. New candidates receive the common temporary password and remain pending administrator approval.
+        </p>
+        <div id="xlsxImportResults" style="display:none; margin-bottom: 10px; font-size: 14px; background: #f8fafc; padding: 12px; border-radius: 6px;"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-sm" data-cancel="xlsxUserImportForm">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" id="submitXlsxUserImportBtn">Import</button>
+        </div>
+      </div>
       <div class="inline-form" id="createCandidateForm">
         <div class="form-row">
           <div class="field"><label>Full name</label><input type="text" id="newCandidateName" required></div>
@@ -118,7 +134,7 @@
         </div>
       </div>
       <table class="candidate-table" id="candidateUsersTable">
-        <thead><tr><th>Name</th><th>Email</th><th>Account</th><th>Latest attempt</th><th>Score</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Name</th><th>Email</th><th>Registered Domain</th><th>Approval</th><th>Account</th><th>Latest attempt</th><th>Score</th><th>Actions</th></tr></thead>
         <tbody id="candidateUsersTableBody"></tbody>
       </table>
     </div>

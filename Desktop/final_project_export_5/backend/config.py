@@ -5,7 +5,11 @@ Everything here is read once at import time. In a real deployment, pull
 SECRET_KEY and DATABASE_URL from environment variables / a secrets manager —
 they are hardcoded here only so the project runs immediately out of the box.
 """
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
+
 
 # --- Environment & Security -------------------------------------------
 ENV = os.environ.get("ENV", "development").lower()
@@ -22,7 +26,11 @@ raw_cors = os.environ.get("CORS_ORIGINS", "*")
 CORS_ORIGINS = [o.strip() for o in raw_cors.split(",") if o.strip()]
 
 # --- Database -----------------------------------------------------------
-DATABASE_URL = os.environ.get("EXAM_DATABASE_URL", "sqlite:///./exam_platform.db")
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://neondb_owner:npg_z9IEstfKL7dO@ep-hidden-bonus-b4qhmphy-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+)
+
 
 # --- Exam rules (server-authoritative) -----------------------------------
 EXAM_DURATION_MINUTES = 120

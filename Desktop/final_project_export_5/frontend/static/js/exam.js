@@ -61,6 +61,16 @@
     });
   }
 
+  const approvalStatus = localStorage.getItem("approval_status");
+  if (approvalStatus && approvalStatus !== "approved") {
+    beginExamBtn.style.display = "none";
+    gateError.textContent = "Your registration is currently pending administrator approval. You cannot begin the exam until approved.";
+    if (approvalStatus === "rejected") {
+      gateError.textContent = "Your registration has been rejected. You cannot take the exam.";
+    }
+    gateError.classList.add("visible");
+  }
+
   // ---------- State ----------
   let current = null;       // current question payload from server
   let navState = [];        // nav grid array from /exam/state

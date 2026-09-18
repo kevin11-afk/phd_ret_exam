@@ -42,6 +42,8 @@ async def _broadcast_candidate_update(db: Session, session: models.ExamSession, 
 
 @router.post("/start", response_model=schemas.QuestionOut)
 async def start_exam(dev: bool = False, db: Session = Depends(get_db), user: models.User = Depends(get_current_candidate)):
+    if user.approval_status != "approved":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Your exam access has not yet been approved by the administrator.")
     try:
         session = exam_engine.start_session(db, user, dev=dev)
     except ValueError as e:

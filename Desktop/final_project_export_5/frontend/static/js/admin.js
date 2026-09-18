@@ -367,10 +367,15 @@
       <tr data-id="${u.id}">
         <td>${escapeHtml(u.full_name)}</td>
         <td>${escapeHtml(u.email)}</td>
+        <td><span style="font-size:12px; color:var(--text-faint);">${escapeHtml(u.registered_domain || '—')}</span></td>
+        <td>
+          <span class="status-pill ${u.approval_status === 'approved' ? 'active' : (u.approval_status === 'rejected' ? 'inactive' : 'in_progress')}">${u.approval_status}</span>
+        </td>
         <td><span class="status-pill ${u.is_active ? "active" : "inactive"}">${u.is_active ? "active" : "disabled"}</span></td>
         <td><span class="status-pill ${attempt}">${attempt.replace("_", " ")}</span></td>
         <td>${u.latest_session_score !== null && u.latest_session_score !== undefined ? u.latest_session_score : '—'}</td>
         <td class="action-cell">
+          ${u.approval_status === "registered" ? `<button class="btn btn-sm btn-primary" data-action="approve" data-id="${u.id}" style="margin-right:4px;">Approve</button><button class="btn btn-sm btn-danger" data-action="reject" data-id="${u.id}" style="margin-right:4px;">Reject</button>` : ""}
           <button class="btn btn-sm" data-action="reset" data-id="${u.id}">Reset password</button>
           <button class="btn btn-sm" data-action="toggle" data-id="${u.id}" data-active="${u.is_active}">${u.is_active ? "Disable" : "Enable"}</button>
           ${canReactivate ? `<button class="btn btn-primary btn-sm" data-action="reactivate" data-id="${u.id}">Allow retake</button>` : ""}
@@ -407,6 +412,46 @@
     });
   }
 
+  // --- XLSX Candidate Import ---
+  const xlsxUserImportForm = document.getElementById("xlsxUserImportForm");
+  const showXlsxUserImportBtn = document.getElementById("showXlsxUserImportBtn");
+  if (showXlsxUserImportBtn) {
+    showXlsxUserImportBtn.addEventListener("click", () => xlsxUserImportForm.classList.add("visible"));
+    xlsxUserImportForm.querySelector('[data-cancel]').addEventListener("click", () => {
+      xlsxUserImportForm.classList.remove("visible");
+      document.getElementById("xlsxImportResults").style.display = "none";
+    });
+    
+    document.getElementById("submitXlsxUserImportBtn").addEventListener("click", async () => {
+      const fileInput = document.getElementById("xlsxUserFile");
+      if (!fileInput.files[0]) {
+        flash(userMsg, "Please select an Excel (.xlsx) file first.");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      try {
+        const res = await api("/admin/users/upload-xlsx", { method: "POST", headers: authHeaders, body: formData });
+        let html = `<strong>Import Successful</strong><br>Created: ${res.created}<br>Already Existed: ${res.already_existed}`;
+        if (res.errors && res.errors.length > 0) {
+          html += `<br><br><strong style="color:var(--danger)">Errors (${res.errors.length}):</strong><ul style="margin:5px 0 0 15px; padding:0; list-style-type:circle;">`;
+          res.errors.slice(0, 10).forEach(e => {
+            html += `<li>Row ${e.row} (${escapeHtml(e.name || "Unknown")}): ${escapeHtml(e.message)}</li>`;
+          });
+          if (res.errors.length > 10) html += `<li>...and ${res.errors.length - 10} more errors.</li>`;
+          html += `</ul>`;
+        }
+        const resDiv = document.getElementById("xlsxImportResults");
+        resDiv.innerHTML = html;
+        resDiv.style.display = "block";
+        fileInput.value = "";
+        loadUsers();
+      } catch (err) {
+        flash(userMsg, err.message);
+      }
+    });
+  }
+
   document.getElementById("panel-users").addEventListener("click", async (e) => {
     const btn = e.target.closest("button[data-action]");
     if (!btn) return;
@@ -431,6 +476,16 @@
         if (!confirm("Clear this candidate's previous exam attempt so they can sign in and take the exam again?")) return;
         const res = await api(`/admin/users/${id}/reactivate`, { method: "POST", headers: authHeaders });
         flash(userMsg, res.message, true);
+        loadUsers();
+      } else if (action === "approve") {
+        if (!confirm("Approve this candidate for the exam?")) return;
+        await api(`/admin/users/${id}/approve`, { method: "POST", headers: authHeaders });
+        flash(userMsg, "Candidate approved.", true);
+        loadUsers();
+      } else if (action === "reject") {
+        if (!confirm("Reject this candidate? They will not be able to start the exam.")) return;
+        await api(`/admin/users/${id}/reject`, { method: "POST", headers: authHeaders });
+        flash(userMsg, "Candidate rejected.", true);
         loadUsers();
       }
     } catch (err) {
