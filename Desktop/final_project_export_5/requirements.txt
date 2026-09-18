@@ -8,3 +8,5 @@ python-multipart
 jinja2
 openpyxl
 python-docx
+python-dotenv==1.0.1
+psycopg2-binary
